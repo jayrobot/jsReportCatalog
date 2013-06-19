@@ -80,6 +80,7 @@ function ToggleCriteriaBoxes(CriteriaOptions, DefaultOptions) {
 	var MiscTicklerSummaries = (CriteriaOptions.toUpperCase().indexOf("TIC")) > -1;
 	var MiscHVRecord = (CriteriaOptions.toUpperCase().indexOf("HVR")) > -1;
 	var MiscASQUnderCutoff = (CriteriaOptions.toUpperCase().indexOf("AUC")) > -1;
+	var MiscASQSEOverCutoff = (CriteriaOptions.toUpperCase().indexOf("AOC")) > -1;
 	var MiscPSIUnderCutoff = (CriteriaOptions.toUpperCase().indexOf("PUC")) > -1;
 	var MiscReferralSourceBreakdown = (CriteriaOptions.toUpperCase().indexOf("RSB")) > -1;
 	var MiscServiceReferralBreakdown = (CriteriaOptions.toUpperCase().indexOf("SRB")) > -1;
@@ -90,8 +91,8 @@ function ToggleCriteriaBoxes(CriteriaOptions, DefaultOptions) {
 	var MiscIncludePreintake = (CriteriaOptions.toUpperCase().indexOf("IPI")) > -1;
 	var MiscIncludeInactive = (CriteriaOptions.toUpperCase().indexOf("III")) > -1;
 
-	var Miscellaneous = MiscPerformanceTargetOptions || MiscSummaryDetail || MiscByStatus || MiscTicklerSummaries
-						|| MiscHVRecord || MiscASQUnderCutoff || MiscPSIUnderCutoff || MiscReferralSourceBreakdown
+	var Miscellaneous = MiscPerformanceTargetOptions || MiscSummaryDetail || MiscByStatus || MiscTicklerSummaries || MiscHVRecord 
+						|| MiscASQUnderCutoff || MiscASQSEOverCutoff || MiscPSIUnderCutoff || MiscReferralSourceBreakdown
 						|| MiscServiceReferralBreakdown || MiscHVLogActivitiesBreakdown || MiscIncludeClosedCases 
 						|| MiscFAWTicklerSortOrder || MiscQAReportOptions || MiscIncludePreintake || MiscIncludeInactive;
 
@@ -478,6 +479,16 @@ function ToggleCriteriaBoxes(CriteriaOptions, DefaultOptions) {
 			}
 		}
 
+		if (MiscASQSEOverCutoff) {
+			if (jQuery("#divOverCutoffASQSE").is(":hidden")) {
+				jQuery("#divOverCutoffASQSE").show(AnimationDelay);
+			}
+		} else {
+			if (jQuery("#divOverCutoffASQSE").is(":visible")) {
+				jQuery("#divOverCutoffASQSE").hide(AnimationDelay);
+			}
+		}
+
 		if (MiscPSIUnderCutoff) {
 			if (jQuery("#divUnderCutoffPSI").is(":hidden")) {
 				jQuery("#divUnderCutoffPSI").show(AnimationDelay);
@@ -690,8 +701,8 @@ function CalculateDefaultDates(strDefaultOption) {
 			}
 		} else {
 			/* we've already filled in start date, just populate start and end dates */
-			dateStart = Date.parse(jQuery('[ID$="txtStartDate"]').val());
-			dateEnd = Date.parse(jQuery('[ID$="txtEndDate"]').val());
+			dateStart = Date.parse(jQuery('[ID$="txtQtrStartDate"]').val());
+			dateEnd = Date.parse(jQuery('[ID$="txtQtrEndDate"]').val());
 		}
 	}
 
@@ -722,8 +733,8 @@ function SetQuarterDates(ctlDDL) {
 	}
 	//	var strQuarterStart = strQuarters.substring(0, 8);
 	//	var strQuarterEnd = strQuarters.substring(9);
-	jQuery('[ID$="StartDate"]').val(strQuarterStart);
-	jQuery('[ID$="EndDate"]').val(strQuarterEnd);
+	jQuery('[ID$="txtQtrStartDate"]').val(strQuarterStart);
+	jQuery('[ID$="txtQtrEndDate"]').val(strQuarterEnd);
 }
 /* end of function SetQuarterDates() */
 
@@ -824,7 +835,9 @@ function ToggleQuarters(QuarterRadioButtonValue) {
 	/// </summary>
 	/// <param name="QuarterRadioButtonValue" type="Control">Text representing the selected Quarters radiobutton option</param>
 	if (QuarterRadioButtonValue == " Quarter:") {
-		jQuery('[ID$="ddlQuarter"]').removeAttr('disabled');
+		var $ddl = jQuery('[ID$="ddlQuarter"]');
+		$ddl.removeAttr('disabled');
+		SetQuarterDates($ddl);
 		jQuery('[ID$="txtQtrStartDate"]').attr('disabled', 'disabled');
 		jQuery('[ID$="txtQtrEndDate"]').attr('disabled', 'disabled');
 	} else {
@@ -972,6 +985,9 @@ function PersistCriteria() {
 		store.set('monthname', '');
 	}
 
+	storeSetCustom(store, 'qtrstartdate', '[ID$="txtQtrStartDate"]', 'date');
+	storeSetCustom(store, 'qtrenddate', '[ID$="txtQtrEndDate"]', 'date');
+	
 	if (jQuery('[ID$="rbtnDates"]').is(':checked')) {
 		var arrQuarterDates = jQuery.parseJSON(jQuery('[ID$="ddlQuarter"]').val());
 		var dateQtrStart = arrQuarterDates.start.toString('MM/dd/yy');
@@ -988,7 +1004,7 @@ function PersistCriteria() {
 		store.set('customquarterlydates', false);
 	}
 
-	/* use alternate method (overriding storeSetCustom) to store drop down lists selected value */
+	/* use alternate method (ignoring storeSetCustom) to store drop down lists selected value */
 	store.set('quarter', jQuery('[ID$="ddlQuarter"] option:selected').text()+':');
 	storeSetCustom(store, 'quartervalue', '[ID$="ddlQuarter"] option:selected', 'string');
 	if (jQuery('[ID$="ddlQuarter"]').is(":visible") && store.get('customquarterlydates') === false) {
@@ -1007,8 +1023,6 @@ function PersistCriteria() {
 		store.set('contractstartdate', new Date());
 		store.set('contractenddate', new Date());
 	}
-	storeSetCustom(store, 'qtrstartdate', '[ID$="txtQtrStartDate"]', 'date');
-	storeSetCustom(store, 'qtrenddate', '[ID$="txtQtrEndDate"]', 'date');
 
 	storeSetCustom(store, 'monthyear', '[ID$="txtMonthYearOnly"]', 'string');
 	if (jQuery('[ID$="txtMonthYearOnly"]').is(":visible")) {
@@ -1075,6 +1089,7 @@ function PersistCriteria() {
 	
 	storeSetCustom(store, 'tsumreports', '[Name$="rblTSumReports"]:checked', 'string');
 	storeSetCustom(store, 'asqundercutoff', '[ID$="chkUnderCutoffASQ"]', 'bit');
+	storeSetCustom(store, 'asqseovercutoff', '[ID$="chkOverCutoffASQSE"]', 'bit');
 	storeSetCustom(store, 'psiundercutoff', '[ID$="chkUnderCutoffPSI"]', 'bit');
 
 	/* the next 3 are hybrid selections, need to design and assemble values to use in report */

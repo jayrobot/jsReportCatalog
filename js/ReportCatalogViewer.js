@@ -105,8 +105,10 @@ jQuery(document).ready(function () {
 		ToggleQuarters(QuarterRadioButtonValue);
 	});
 
-	var SelectedQuarterButtonText = jQuery(".Quarters :radio:checked + label").text();
-	ToggleQuarters(SelectedQuarterButtonText);
+	if (jQuery('[ID$="ddlQuarter"]').is(":visible")) {
+		var SelectedQuarterButtonText = jQuery(".Quarters :radio:checked + label").text();
+		ToggleQuarters(SelectedQuarterButtonText);
+	}
 
 	jQuery('[ID$="ddlTSumSup"]').change(function () {
 		jQuery('[ID$="rbtnTSumSup"]').attr('checked', 'checked');
@@ -231,6 +233,7 @@ function RestoreCriteria() {
 	storeGetCustom(store, 'tsumreports', '[ID$="hfTSumReports"]');
 
 	storeGetCustom(store, 'asqundercutoff', '[ID$="hfUnderCutoffASQ"]');
+	storeGetCustom(store, 'asqseovercutoff', '[ID$="hfOverCutoffASQSE"]');
 	storeGetCustom(store, 'psiundercutoff', '[ID$="hfUnderCutoffPSI"]');
 
 	/* the next 3 are hybrid selections, need to design and assemble values to use in report */
@@ -345,6 +348,7 @@ function RestoreCriteria() {
 	storeGetCustom(store, 'tsumreports', '[ID$="rblTSumReports"]');
 
 	storeGetCustom(store, 'asqundercutoff', '[ID$="chkUnderCutoffASQ"]');
+	storeGetCustom(store, 'asqseovercutoff', '[ID$="chkOverCutoffASQSE"]');
 	storeGetCustom(store, 'psiundercutoff', '[ID$="chkUnderCutoffPSI"]');
 
 	/* the next 3 are hybrid selections, need to design and assemble values to use in report */

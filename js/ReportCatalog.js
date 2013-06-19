@@ -8,7 +8,7 @@ var ts = parseInt((jQuery(window).height() - 270) / 22.9);
 jQuery(document).ready(function () {
 	// alert("Page ready!");
 	// jQuery("#mainTable").tipsy({ gravity: jQuery.fn.tipsy.autoNS, html: true });
-
+		
 	jQuery(function () {
 
 		// global setting override
